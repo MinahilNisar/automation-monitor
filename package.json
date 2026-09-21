@@ -1,0 +1,20 @@
+{
+  "name": "automation-monitor",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "concurrently --kill-others -n WEB,API -c cyan,green \"npm run dev:web\" \"npm run dev:api\"",
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:api": "npm --prefix apps/api run start:dev",
+    "install:apps": "npm --prefix apps/web ci && npm --prefix apps/api ci",
+    "build": "npm --prefix apps/api run build && npm --prefix apps/web run build",
+    "lint": "npm --prefix apps/web run lint && npm --prefix apps/api run lint",
+    "test": "npm --prefix apps/api test && npm --prefix apps/api run test:e2e"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
