@@ -12,7 +12,8 @@
     "install:apps": "npm --prefix apps/web ci && npm --prefix apps/api ci",
     "build": "npm --prefix apps/api run build && npm --prefix apps/web run build",
     "lint": "npm --prefix apps/web run lint && npm --prefix apps/api run lint",
-    "test": "npm --prefix apps/api test && npm --prefix apps/api run test:e2e"
+    "test": "npm --prefix apps/api test && npm --prefix apps/api run test:e2e",
+    "verify": "npm run lint && npm test && npm run build"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

@@ -55,16 +55,20 @@ Defaults work without environment files. To change ports or addresses, copy apps
 
 The API binds to 127.0.0.1 for local development. Deployment will require an appropriate bind address and deployment-specific origin configuration.
 
-## Next milestones
+## Guided development
 
-1. Add PostgreSQL and Prisma.
-2. Receive and store an automation event.
-3. Display execution history.
-4. Add authentication, workspaces, and permissions before handling real customer data.
-5. Add queues, alerts, and integrations.
+- [Project scope and 10-phase roadmap](docs/ROADMAP.md)
+- [Architecture and request flow](docs/ARCHITECTURE.md)
+- [Phase 1 walkthrough and evaluation exercises](docs/PHASE-01.md)
+
+Phase 1 implements the local foundation. Learner review is a separate checkpoint: passing tests does not establish understanding.
+
+Run all foundation checks with `npm run verify` (lint, backend tests, and both production builds).
 
 The current NestJS generator uses Vitest and Oxlint; this starter retains those generated tools. Browser end-to-end tests can be added with Playwright when user workflows exist.
 
 ## GitHub
 
 Never commit environment files or credentials. A GitHub remote must be configured before pushing this project.
+
+Changes are reviewed phase by phase. Obtain the project owner's confirmation before making a Git commit or pushing to GitHub.
