@@ -25,7 +25,11 @@ Dependencies are installed during initial setup; after that, just run npm run de
 - Backend health: http://localhost:3001/health
 - Stop both processes with Ctrl+C.
 
-The dashboard makes a real browser request to the API. It shows a useful error when the backend is unavailable. No database or automation connection is claimed yet.
+The dashboard checks API liveness. Phase 2 adds a local PostgreSQL database and development-only read routes; database-backed dashboard views and live automation integrations come later.
+
+## Phase 2 database setup
+
+See [Phase 2 setup and walkthrough](docs/PHASE-02.md). With Docker Desktop running, use npm run setup:env, npm run db:up, npm run db:deploy, and npm run db:seed. Restart the API to load its new local configuration.
 
 ## Structure
 
@@ -60,6 +64,7 @@ The API binds to 127.0.0.1 for local development. Deployment will require an app
 - [Project scope and 10-phase roadmap](docs/ROADMAP.md)
 - [Architecture and request flow](docs/ARCHITECTURE.md)
 - [Phase 1 walkthrough and evaluation exercises](docs/PHASE-01.md)
+- [Phase 2 database setup and evaluation exercises](docs/PHASE-02.md)
 
 Phase 1 implements the local foundation. Learner review is a separate checkpoint: passing tests does not establish understanding.
 

@@ -9,11 +9,22 @@
     "dev": "concurrently --kill-others -n WEB,API -c cyan,green \"npm run dev:web\" \"npm run dev:api\"",
     "dev:web": "npm --prefix apps/web run dev",
     "dev:api": "npm --prefix apps/api run start:dev",
-    "install:apps": "npm --prefix apps/web ci && npm --prefix apps/api ci",
+    "install:apps": "npm --prefix apps/web ci && npm --prefix apps/api ci && npm run db:generate",
     "build": "npm --prefix apps/api run build && npm --prefix apps/web run build",
     "lint": "npm --prefix apps/web run lint && npm --prefix apps/api run lint",
     "test": "npm --prefix apps/api test && npm --prefix apps/api run test:e2e",
-    "verify": "npm run lint && npm test && npm run build"
+    "verify": "npm run db:generate && npm run lint && npm test && npm run build",
+    "setup:env": "node scripts/setup-env.mjs",
+    "docker": "node scripts/docker.mjs",
+    "db:up": "npm run docker -- up -d --wait",
+    "db:stop": "npm run docker -- stop postgres",
+    "db:restart": "npm run docker -- restart postgres",
+    "db:generate": "npm --prefix apps/api run db:generate",
+    "db:migrate": "npm --prefix apps/api run db:migrate --",
+    "db:deploy": "npm --prefix apps/api run db:deploy",
+    "db:seed": "npm --prefix apps/api run db:seed",
+    "db:check": "npm --prefix apps/api run db:check",
+    "db:check:http": "npm --prefix apps/api run db:check:http"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

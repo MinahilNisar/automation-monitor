@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RunStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum EventType {
+  STARTED
+  COMPLETED
+  FAILED
+}
+
+model Workflow {
+  id          String   @id @default(uuid()) @db.Uuid
+  slug        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  runs        Run[]
+}
+
+model Run {
+  id          String    @id @default(uuid()) @db.Uuid
+  workflowId  String    @db.Uuid
+  externalId  String
+  status      RunStatus
+  startedAt   DateTime  @db.Timestamptz(3)
+  finishedAt  DateTime? @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  workflow    Workflow  @relation(fields: [workflowId], references: [id], onDelete: Restrict)
+  events      RunEvent[]
+
+  @@unique([workflowId, externalId])
+  @@index([workflowId, startedAt])
+  @@index([status, startedAt])
+}
+
+model RunEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  runId       String    @db.Uuid
+  externalId  String
+  type        EventType
+  message     String
+  occurredAt  DateTime  @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  run         Run       @relation(fields: [runId], references: [id], onDelete: Restrict)
+
+  @@unique([runId, externalId])
+  @@index([runId, occurredAt])
+}

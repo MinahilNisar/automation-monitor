@@ -8,3 +8,7 @@ coverage/
 *.log
 *.tsbuildinfo
 .DS_Store
+
+# Local PostgreSQL files and generated Prisma client
+.data/
+apps/api/src/generated/
