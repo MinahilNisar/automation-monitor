@@ -2,30 +2,13 @@ import { Test } from '@nestjs/testing';
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module.js';
-import { WorkflowsService } from '../src/workflows/workflows.service.js';
-
-describe('Development workflow route boundaries', () => {
+import { configureApp } from '../src/configure-app.js';
+describe('Authentication boundaries without a database', () => {
   let app: INestApplication;
-  beforeEach(async () => {
-    vi.stubEnv('ENABLE_DEV_ROUTES', 'false');
-    vi.stubEnv('NODE_ENV', 'test');
-    const module = await Test.createTestingModule({ imports: [AppModule] })
-      .overrideProvider(WorkflowsService).useValue({ list: () => [], runs: () => [] }).compile();
-    app = module.createNestApplication();
-    await app.init();
-  });
-  afterEach(async () => { await app.close(); vi.unstubAllEnvs(); });
-  it('is unavailable without explicit opt-in', async () => { await request(app.getHttpServer()).get('/dev/workflows').expect(404); });
-  it('is unavailable in production even with opt-in', async () => {
-    vi.stubEnv('NODE_ENV', 'production'); vi.stubEnv('ENABLE_DEV_ROUTES', 'true');
-    await request(app.getHttpServer()).get('/dev/workflows').expect(404);
-  });
-  it('allows opted-in development reads', async () => {
-    vi.stubEnv('ENABLE_DEV_ROUTES', 'true');
-    await request(app.getHttpServer()).get('/dev/workflows').expect(200).expect([]);
-  });
-  it('rejects malformed workflow IDs', async () => {
-    vi.stubEnv('ENABLE_DEV_ROUTES', 'true');
-    await request(app.getHttpServer()).get('/dev/workflows/not-a-uuid/runs').expect(400);
-  });
+  beforeEach(async () => { const module = await Test.createTestingModule({ imports: [AppModule] }).compile(); app = module.createNestApplication(); configureApp(app); await app.init(); });
+  afterEach(async () => { await app.close(); });
+  it('removes the public development endpoint', async () => { await request(app.getHttpServer()).get('/dev/workflows').expect(404); });
+  it('requires a session for workspaces', async () => { await request(app.getHttpServer()).get('/workspaces').expect(401); });
+  it('rejects writes without an allowed origin', async () => { await request(app.getHttpServer()).post('/auth/register').send({}).expect(403); });
+  it('rejects invalid registration before database access', async () => { await request(app.getHttpServer()).post('/auth/register').set('Origin', 'http://localhost:3000').set('X-Requested-With', 'AutomationMonitor').send({ email: 'invalid' }).expect(400); });
 });

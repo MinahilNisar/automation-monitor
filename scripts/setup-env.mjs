@@ -9,7 +9,6 @@ let api = existsSync(apiFile) ? readFileSync(apiFile, 'utf8') : '';
 const defaults = {
   PORT: '3001', FRONTEND_URL: 'http://localhost:3000',
   DATABASE_URL: 'postgresql://automation_monitor:' + password + '@127.0.0.1:5433/automation_monitor?schema=public',
-  ENABLE_DEV_ROUTES: 'true',
 };
 for (const [key, value] of Object.entries(defaults)) {
   if (!new RegExp('^' + key + '=', 'm').test(api)) api += '\n' + key + '=' + value + '\n';

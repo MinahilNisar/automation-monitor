@@ -24,7 +24,8 @@
     "db:deploy": "npm --prefix apps/api run db:deploy",
     "db:seed": "npm --prefix apps/api run db:seed",
     "db:check": "npm --prefix apps/api run db:check",
-    "db:check:http": "npm --prefix apps/api run db:check:http"
+    "db:check:http": "npm --prefix apps/api run db:check:http",
+    "test:auth": "npm --prefix apps/api run test:auth"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

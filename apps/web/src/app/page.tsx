@@ -42,7 +42,7 @@ export default function Home() {
     <main className="shell">
       <header className="topbar">
         <Link className="brand" href="/" aria-label="Automation Monitor home"><span className="brand-icon">A</span>Automation Monitor</Link>
-        <span className="tag">Development preview</span>
+        <Link className="account-back" href="/account">Your workspace ↗</Link>
       </header>
       <section className="intro">
         <p className="eyebrow">YOUR AUTOMATIONS, IN VIEW</p>

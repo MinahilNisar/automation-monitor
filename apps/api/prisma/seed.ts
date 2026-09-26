@@ -7,9 +7,10 @@ if (!process.env.DATABASE_URL) throw new Error('Run npm run setup:env at the pro
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 try {
   await db.$transaction(async tx => {
+    await tx.workspace.upsert({ where: { id: '00000000-0000-4000-8000-000000000003' }, update: {}, create: { id: '00000000-0000-4000-8000-000000000003', name: 'Legacy demo (unassigned)' } });
     const workflow = await tx.workflow.upsert({
-      where: { slug: 'demo-daily-report' }, update: {},
-      create: { slug: 'demo-daily-report', name: '[DEMO] Daily sales report', description: 'Synthetic Phase 2 data, not a connected automation.' },
+      where: { workspaceId_slug: { workspaceId: '00000000-0000-4000-8000-000000000003', slug: 'demo-daily-report' } }, update: {},
+      create: { workspaceId: '00000000-0000-4000-8000-000000000003', slug: 'demo-daily-report', name: '[DEMO] Daily sales report', description: 'Synthetic Phase 2 data, not a connected automation.' },
     });
     const run = await tx.run.upsert({
       where: { workflowId_externalId: { workflowId: workflow.id, externalId: 'demo-run-001' } }, update: {},

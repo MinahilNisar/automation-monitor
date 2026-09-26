@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'production') throw new Error('Local demo checks ar
 if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is missing.');
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 5000 }) });
 try {
-  const workflow = await db.workflow.findUniqueOrThrow({ where: { slug: 'demo-daily-report' }, include: { runs: { where: { externalId: 'demo-run-001' }, include: { events: true } } } });
+  const workflow = await db.workflow.findUniqueOrThrow({ where: { workspaceId_slug: { workspaceId: '00000000-0000-4000-8000-000000000003', slug: 'demo-daily-report' } }, include: { runs: { where: { externalId: 'demo-run-001' }, include: { events: true } } } });
   assert.equal(workflow.runs.length, 1);
   const run = workflow.runs[0];
   assert.equal(run.events.length, 2);

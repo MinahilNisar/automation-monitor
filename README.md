@@ -25,9 +25,9 @@ Dependencies are installed during initial setup; after that, just run npm run de
 - Backend health: http://localhost:3001/health
 - Stop both processes with Ctrl+C.
 
-The dashboard checks API liveness. Phase 2 adds a local PostgreSQL database and development-only read routes; database-backed dashboard views and live automation integrations come later.
+The dashboard checks API liveness. Phase 3 adds registration, database-backed sessions and workspace-scoped routes. Open http://localhost:3000/account. Public development routes have been removed; live automation integrations come later.
 
-## Phase 2 database setup
+## Local database setup
 
 See [Phase 2 setup and walkthrough](docs/PHASE-02.md). With Docker Desktop running, use npm run setup:env, npm run db:up, npm run db:deploy, and npm run db:seed. Restart the API to load its new local configuration.
 
@@ -65,10 +65,13 @@ The API binds to 127.0.0.1 for local development. Deployment will require an app
 - [Architecture and request flow](docs/ARCHITECTURE.md)
 - [Phase 1 walkthrough and evaluation exercises](docs/PHASE-01.md)
 - [Phase 2 database setup and evaluation exercises](docs/PHASE-02.md)
+- [Phase 3 authentication and workspaces](docs/PHASE-03.md)
+
+Phase 2 documentation is historical where it describes public development routes. Use the authenticated Phase 3 routes now.
 
 Phase 1 implements the local foundation. Learner review is a separate checkpoint: passing tests does not establish understanding.
 
-Run all foundation checks with `npm run verify` (lint, backend tests, and both production builds).
+Run all application checks with `npm run verify` (lint, backend tests, and both production builds).
 
 The current NestJS generator uses Vitest and Oxlint; this starter retains those generated tools. Browser end-to-end tests can be added with Playwright when user workflows exist.
 
@@ -77,3 +80,5 @@ The current NestJS generator uses Vitest and Oxlint; this starter retains those 
 Never commit environment files or credentials. A GitHub remote must be configured before pushing this project.
 
 Changes are reviewed phase by phase. Obtain the project owner's confirmation before making a Git commit or pushing to GitHub.
+
+For database-backed authentication and isolation checks, run npm run test:auth. Temporary accounts are removed by the test script. Register your own account in the browser; no default credentials are provided.
