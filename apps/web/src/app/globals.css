@@ -58,3 +58,9 @@ footer { padding: 30px 0; font-size: 12px; }
 .account-section-title { display: flex; justify-content: space-between; align-items: center; gap: 14px; }
 .account-inline-form { grid-template-columns: 1fr 1fr auto; align-items: end; }
 @media(max-width:760px) { .account-login-grid, .account-inline-form { grid-template-columns: 1fr; } .account-intro h2 { font-size: 26px; } }
+
+.key-endpoint { display: block; overflow-wrap: anywhere; margin-top: 8px; }
+.key-label { display: grid; gap: 8px; margin: 16px 0; }
+.key-label textarea { width: 100%; min-height: 76px; background: #0b1510; color: #eff6f2; padding: 12px; border: 1px solid #456352; border-radius: 8px; resize: vertical; }
+.account-list li { flex-wrap: wrap; }
+.account-list li > span { flex: 1; min-width: 150px; }

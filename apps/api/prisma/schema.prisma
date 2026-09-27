@@ -29,6 +29,7 @@ model Workflow {
   description String?
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  keys        WorkflowApiKey[]
   runs        Run[]
 
   @@unique([workspaceId, slug])
@@ -39,7 +40,7 @@ model Run {
   workflowId  String    @db.Uuid
   externalId  String
   status      RunStatus
-  startedAt   DateTime  @db.Timestamptz(3)
+  startedAt   DateTime? @db.Timestamptz(3)
   finishedAt  DateTime? @db.Timestamptz(3)
   createdAt   DateTime  @default(now()) @db.Timestamptz(3)
   workflow    Workflow  @relation(fields: [workflowId], references: [id], onDelete: Restrict)
@@ -77,6 +78,7 @@ model User {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   memberships Membership[]
   sessions Session[]
+  issuedKeys WorkflowApiKey[]
 }
 
 model Workspace {
@@ -106,4 +108,18 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId])
   @@index([expiresAt])
+}
+
+model WorkflowApiKey {
+  id String @id @default(uuid()) @db.Uuid
+  workflowId String @db.Uuid
+  createdById String? @db.Uuid
+  label String
+  keyHash String @unique
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  createdBy User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  @@index([workflowId, createdAt])
 }

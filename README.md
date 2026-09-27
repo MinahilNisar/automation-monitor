@@ -66,6 +66,7 @@ The API binds to 127.0.0.1 for local development. Deployment will require an app
 - [Phase 1 walkthrough and evaluation exercises](docs/PHASE-01.md)
 - [Phase 2 database setup and evaluation exercises](docs/PHASE-02.md)
 - [Phase 3 authentication and workspaces](docs/PHASE-03.md)
+- [Phase 4 API keys, event ingestion and evaluation exercises](docs/PHASE-04.md)
 
 Phase 2 documentation is historical where it describes public development routes. Use the authenticated Phase 3 routes now.
 
@@ -82,3 +83,5 @@ Never commit environment files or credentials. A GitHub remote must be configure
 Changes are reviewed phase by phase. Obtain the project owner's confirmation before making a Git commit or pushing to GitHub.
 
 For database-backed authentication and isolation checks, run npm run test:auth. Temporary accounts are removed by the test script. Register your own account in the browser; no default credentials are provided.
+
+Phase 4 accepts workflow events using owner-managed API keys. Run `npm run test:ingestion` for database-backed delivery checks, or follow the Phase 4 guide to send demo events with `npm run demo:ingest`.

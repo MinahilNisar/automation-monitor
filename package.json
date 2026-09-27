@@ -25,7 +25,9 @@
     "db:seed": "npm --prefix apps/api run db:seed",
     "db:check": "npm --prefix apps/api run db:check",
     "db:check:http": "npm --prefix apps/api run db:check:http",
-    "test:auth": "npm --prefix apps/api run test:auth"
+    "test:auth": "npm --prefix apps/api run test:auth",
+    "demo:ingest": "node scripts/send-demo-events.mjs",
+    "test:ingestion": "npm --prefix apps/api run test:ingestion"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

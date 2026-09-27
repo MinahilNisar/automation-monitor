@@ -1,3 +1,4 @@
+import { IngestionModule } from './ingestion/ingestion.module.js';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -8,7 +9,7 @@ import { WorkflowsModule } from './workflows/workflows.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 @Module({
-  imports: [ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]), AuthModule, WorkspacesModule, WorkflowsModule],
+  imports: [ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]), AuthModule, WorkspacesModule, WorkflowsModule, IngestionModule],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: OriginGuard }, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
