@@ -42,7 +42,7 @@ export default function Home() {
     <main className="shell">
       <header className="topbar">
         <Link className="brand" href="/" aria-label="Automation Monitor home"><span className="brand-icon">A</span>Automation Monitor</Link>
-        <Link className="account-back" href="/account">Your workspace ↗</Link>
+        <Link className="account-back" href="/dashboard">Open dashboard ↗</Link>
       </header>
       <section className="intro">
         <p className="eyebrow">YOUR AUTOMATIONS, IN VIEW</p>
@@ -67,9 +67,9 @@ export default function Home() {
       <section className="grid" aria-label="Project foundation">
         <article className="card"><span className="number">01 / INTERFACE</span><h2>Next.js + React</h2><p>TypeScript, responsive styling, and a foundation for your monitoring dashboard.</p><span className="pill">Ready</span></article>
         <article className="card"><span className="number">02 / API</span><h2>NestJS + Node.js</h2><p>A separate backend with a health endpoint, local CORS configuration, and automated checks.</p><span className="pill">Scaffolded</span></article>
-        <article className="card"><span className="number">03 / NEXT MILESTONE</span><h2>Your first execution</h2><p>Receive a workflow event, save it to PostgreSQL, and display its execution history here.</p><span className="pill next">Coming next</span></article>
+        <article className="card"><span className="number">03 / EXECUTION HISTORY</span><h2>Your monitoring dashboard</h2><p>Filter your execution history, review daily activity, and inspect each run’s event timeline.</p><Link className="pill" href="/dashboard">View dashboard ↗</Link></article>
       </section>
-      <footer>No workflows connected yet. This page verifies your project foundation.</footer>
+      <footer>Open your dashboard to see workspace activity, or manage workflows in your account.</footer>
     </main>
   );
 }

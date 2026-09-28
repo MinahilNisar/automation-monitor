@@ -48,6 +48,7 @@ model Run {
 
   @@unique([workflowId, externalId])
   @@index([workflowId, startedAt])
+  @@index([workflowId, createdAt, id])
   @@index([status, startedAt])
 }
 

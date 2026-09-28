@@ -85,3 +85,7 @@ Changes are reviewed phase by phase. Obtain the project owner's confirmation bef
 For database-backed authentication and isolation checks, run npm run test:auth. Temporary accounts are removed by the test script. Register your own account in the browser; no default credentials are provided.
 
 Phase 4 accepts workflow events using owner-managed API keys. Run `npm run test:ingestion` for database-backed delivery checks, or follow the Phase 4 guide to send demo events with `npm run demo:ingest`.
+
+## Phase 5 dashboard
+
+Open http://localhost:3000/dashboard after signing in. See [Phase 5 walkthrough](docs/PHASE-05.md) for filters, metrics, pagination, and manager questions. `npm run test:monitor` checks the dashboard against the local database. Apply migrations with `npm run db:deploy` before starting the updated API.

@@ -64,7 +64,7 @@ export default function AccountPage() {
   }
   const membership = memberships.find(item => item.workspaceId === selected);
   return <main className="shell account-shell">
-    <header className="topbar"><Link className="brand" href="/"><span className="brand-icon">A</span>Automation Monitor</Link><Link className="account-back" href="/">Overview ↗</Link></header>
+    <header className="topbar"><Link className="brand" href="/"><span className="brand-icon">A</span>Automation Monitor</Link><Link className="account-back" href="/dashboard">Dashboard ↗</Link></header>
     <div className="account-heading"><p className="eyebrow">YOUR TEAM, YOUR SPACE</p><h1>{user ? 'Welcome, ' + user.name + '.' : 'A workspace for your automations.'}</h1><p className="description">Keep your workflows organized and give your team the right access.</p></div>
     {error && <div role="alert" className="account-error">{error}</div>}
     {notice && <div role="status" className="account-notice">{notice}</div>}

@@ -30,7 +30,8 @@
     "db:check": "tsx prisma/check.ts",
     "db:check:http": "npm run test:auth",
     "test:auth": "npm run build && node scripts/check-auth.mjs",
-    "test:ingestion": "npm run build && node scripts/check-ingestion.mjs"
+    "test:ingestion": "npm run build && node scripts/check-ingestion.mjs",
+    "test:monitor": "npm run build && node scripts/check-monitor.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
