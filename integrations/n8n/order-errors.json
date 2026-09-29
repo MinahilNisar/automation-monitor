@@ -1,0 +1,140 @@
+{
+  "id": "amordersErrors",
+  "name": "Automation Monitor · report order failures",
+  "active": false,
+  "nodes": [
+    {
+      "id": "dd313949-259c-450f-b7fd-b78f26c322c6",
+      "name": "Order failed",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "9c7aa42b-6c91-48ea-9ab0-3da8c2319b4d",
+      "name": "Has execution ID?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c79698fb-114b-417f-b397-253fbfa7a376",
+              "leftValue": "={{ !!$json.execution?.id }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "111cd31d-7c2e-4ae6-88c2-ac6231f00bd1",
+      "name": "Capture failure",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { runId: 'n8n:' + $('Order failed').first().json.execution.id, eventId: 'failed', type: 'FAILED', occurredAt: $now.toUTC().toISO(), message: 'Order automation failed. Inspect the linked n8n execution for details.' } }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "fbda69f3-1a4f-4493-a1e5-6e63b51d104d",
+      "name": "Report failed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://monitor-api:3001/ingest/workflows/00000000-0000-4000-8000-000000000000/events",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "amordersMonitorKey",
+          "name": "Automation Monitor · orders"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    }
+  ],
+  "connections": {
+    "Order failed": {
+      "main": [
+        [
+          {
+            "node": "Has execution ID?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has execution ID?": {
+      "main": [
+        [
+          {
+            "node": "Capture failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture failure": {
+      "main": [
+        [
+          {
+            "node": "Report failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "pinData": {},
+  "versionId": "9db4d838-9aaa-469e-a6a4-3818a97ddfb3"
+}

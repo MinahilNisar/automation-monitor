@@ -89,3 +89,7 @@ Phase 4 accepts workflow events using owner-managed API keys. Run `npm run test:
 ## Phase 5 dashboard
 
 Open http://localhost:3000/dashboard after signing in. See [Phase 5 walkthrough](docs/PHASE-05.md) for filters, metrics, pagination, and manager questions. `npm run test:monitor` checks the dashboard against the local database. Apply migrations with `npm run db:deploy` before starting the updated API.
+
+## Phase 6: n8n integration
+
+Run `npm run n8n:up` to start the local n8n editor and container API. Follow [Phase 6 setup and learning guide](docs/PHASE-06.md) to connect your workflow and run `npm run demo:n8n`. The real integration suite is `npm run test:n8n`. n8n is at http://localhost:5678; its files stay on E: under the ignored .data directory.

@@ -8,6 +8,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   configureApp(app);
   app.enableShutdownHooks();
-  await app.listen(Number(process.env.PORT ?? 3001), '127.0.0.1');
+  await app.listen(Number(process.env.PORT ?? 3001), process.env.HOST ?? '127.0.0.1');
 }
 void bootstrap();

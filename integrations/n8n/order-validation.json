@@ -1,0 +1,298 @@
+{
+  "id": "amordersMain",
+  "name": "Automation Monitor · validate orders",
+  "active": false,
+  "nodes": [
+    {
+      "id": "21143cba-04e5-43ba-89dc-3316476a8aff",
+      "name": "Order webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "automation-monitor/orders",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "e9df75fb-3a6a-4de9-9ee9-4ccbc78f831f",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "amordersWebhookKey",
+          "name": "Orders webhook · local"
+        }
+      }
+    },
+    {
+      "id": "663d9400-acbd-42f9-8bbd-8d64e1675576",
+      "name": "Capture start",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { runId: 'n8n:' + $execution.id, eventId: 'started', type: 'STARTED', occurredAt: $now.toUTC().toISO(), message: 'Order validation started.' } }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "07e06ead-9fd5-4f2e-b7f4-39e0b8625968",
+      "name": "Report started",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://monitor-api:3001/ingest/workflows/00000000-0000-4000-8000-000000000000/events",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "amordersMonitorKey",
+          "name": "Automation Monitor · orders"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "313d32e0-101c-484e-8371-470dd9c30048",
+      "name": "Valid order?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d7a2db9a-c13b-4fef-a2f3-ad608db76da9",
+              "leftValue": "={{ typeof $('Order webhook').first().json.body.orderId === 'string' && $('Order webhook').first().json.body.orderId.length > 0 && $('Order webhook').first().json.body.orderId.length <= 80 && typeof $('Order webhook').first().json.body.amount === 'number' && Number.isFinite($('Order webhook').first().json.body.amount) && $('Order webhook').first().json.body.amount > 0 && $('Order webhook').first().json.body.amount <= 1000000 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "31e9c6f7-cc1b-48ee-ad31-1a506b8d77ae",
+      "name": "Build receipt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        -120
+      ],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { orderId: $('Order webhook').first().json.body.orderId, subtotal: $('Order webhook').first().json.body.amount, tax: Math.round($('Order webhook').first().json.body.amount * 0.1 * 100) / 100, total: Math.round($('Order webhook').first().json.body.amount * 1.1 * 100) / 100 } }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "f71d9ca5-bde4-47d9-ac4d-b6a800343075",
+      "name": "Capture completion",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        -120
+      ],
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { runId: $('Capture start').first().json.runId, eventId: 'completed', type: 'COMPLETED', occurredAt: $now.toUTC().toISO(), message: 'Order validated and receipt calculated. No payment was taken.' } }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "27c7fc00-d71d-4a2d-9626-3081cb0609be",
+      "name": "Report completed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1440,
+        -120
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://monitor-api:3001/ingest/workflows/00000000-0000-4000-8000-000000000000/events",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "amordersMonitorKey",
+          "name": "Automation Monitor · orders"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "60ff0514-5569-4847-b080-10e3411d9b8d",
+      "name": "Return receipt",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1680,
+        -120
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { accepted: true, executionId: $('Capture start').first().json.runId, receipt: $('Build receipt').first().json } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "7e49ae50-ec77-42de-89df-c9d0cce50d3e",
+      "name": "Reject invalid order",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        960,
+        160
+      ],
+      "parameters": {
+        "errorMessage": "Order must have an orderId and a positive numeric amount no greater than 1000000."
+      }
+    }
+  ],
+  "connections": {
+    "Order webhook": {
+      "main": [
+        [
+          {
+            "node": "Capture start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture start": {
+      "main": [
+        [
+          {
+            "node": "Report started",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report started": {
+      "main": [
+        [
+          {
+            "node": "Valid order?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid order?": {
+      "main": [
+        [
+          {
+            "node": "Build receipt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject invalid order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build receipt": {
+      "main": [
+        [
+          {
+            "node": "Capture completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture completion": {
+      "main": [
+        [
+          {
+            "node": "Report completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report completed": {
+      "main": [
+        [
+          {
+            "node": "Return receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "amordersErrors",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "executionTimeout": 120
+  },
+  "pinData": {},
+  "versionId": "592e8ee0-8dbb-4bc8-990b-be998436af18"
+}
