@@ -1,0 +1,13 @@
+.alerts-layout { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(280px, 1fr); gap: 22px; align-items: start; }
+.alerts-layout h2 { display: flex; align-items: center; gap: 10px; }
+.alerts-list { padding: 0; margin: 18px 0; list-style: none; }
+.alerts-list li { border-top: 1px solid #2a3d32; padding: 24px 0; }
+.alerts-list h3 { margin: 14px 0 6px; font-size: 16px; }
+.alerts-list p { font-size: 14px; color: #bdcec3; line-height: 1.6; }
+.alerts-list time { color: #a6b8ae; font-size: 12px; }
+.alerts-list .alert-read { border-left: 3px solid #405749; padding-left: 14px; }
+.alerts-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.alerts-rule { display: grid; gap: 18px; margin-top: 24px; }
+.monitor-page .alerts-checkbox { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.monitor-page .alerts-checkbox input { width: 18px; min-height: 18px; accent-color: #b4efc5; }
+@media (max-width: 850px) { .alerts-layout { grid-template-columns: 1fr; } .alerts-layout aside { grid-row: 1; } }

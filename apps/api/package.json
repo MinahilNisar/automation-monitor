@@ -31,7 +31,9 @@
     "db:check:http": "npm run test:auth",
     "test:auth": "npm run build && node scripts/check-auth.mjs",
     "test:ingestion": "npm run build && node scripts/check-ingestion.mjs",
-    "test:monitor": "npm run build && node scripts/check-monitor.mjs"
+    "test:monitor": "npm run build && node scripts/check-monitor.mjs",
+    "alerts:worker": "node dist/alerts/worker.js",
+    "test:alerts": "npm run build && node scripts/check-alerts.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
@@ -40,7 +42,9 @@
     "@nestjs/throttler": "^6.7.1",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "bullmq": "6.3.9",
     "cookie-parser": "^1.4.7",
+    "ioredis": "6.0.0",
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",

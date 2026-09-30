@@ -1,0 +1,16 @@
+# Use together with compose.yaml and compose.n8n.yaml (which defines the API build).
+services:
+  alert-worker:
+    build:
+      context: ./apps/api
+    restart: unless-stopped
+    command: ["node", "dist/alerts/worker.js"]
+    environment:
+      DATABASE_URL: postgresql://automation_monitor:${POSTGRES_PASSWORD}@postgres:5432/automation_monitor?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      monitor-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy

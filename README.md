@@ -93,3 +93,7 @@ Open http://localhost:3000/dashboard after signing in. See [Phase 5 walkthrough]
 ## Phase 6: n8n integration
 
 Run `npm run n8n:up` to start the local n8n editor and container API. Follow [Phase 6 setup and learning guide](docs/PHASE-06.md) to connect your workflow and run `npm run demo:n8n`. The real integration suite is `npm run test:n8n`. n8n is at http://localhost:5678; its files stay on E: under the ignored .data directory.
+
+## Phase 7: alerts
+
+Run `npm run alerts:up`, then open http://localhost:3000/alerts. Owners can enable failure and missing-run rules; members share the alert inbox. See the [Phase 7 learning guide](docs/PHASE-07.md) for setup, delivery guarantees, tests and manager questions. Stop the normal worker with `npm run alerts:stop` before running `npm run test:alerts`.

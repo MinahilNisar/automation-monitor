@@ -29,6 +29,8 @@ model Workflow {
   description String?
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  alertPolicy AlertPolicy?
+  alerts Alert[]
   keys        WorkflowApiKey[]
   runs        Run[]
 
@@ -123,4 +125,39 @@ model WorkflowApiKey {
   workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   createdBy User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
   @@index([workflowId, createdAt])
+}
+
+enum AlertKind {
+  FAILURE
+  MISSING_RUN
+}
+enum AlertDelivery {
+  PENDING
+  DELIVERED
+  FAILED
+}
+model AlertPolicy {
+  workflowId String @id @db.Uuid
+  failureEnabled Boolean @default(false)
+  expectedMinutes Int?
+  monitoringSince DateTime @default(now()) @db.Timestamptz(3)
+  generation String @default(uuid()) @db.Uuid
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+model Alert {
+  id String @id @default(uuid()) @db.Uuid
+  workflowId String @db.Uuid
+  runId String? @db.Uuid
+  kind AlertKind
+  dedupeKey String @unique
+  message String
+  delivery AlertDelivery @default(PENDING)
+  attempts Int @default(0)
+  lastError String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  deliveredAt DateTime? @db.Timestamptz(3)
+  readAt DateTime? @db.Timestamptz(3)
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  @@index([workflowId, createdAt, id])
+  @@index([delivery, id])
 }

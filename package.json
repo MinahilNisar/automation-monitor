@@ -33,7 +33,11 @@
     "n8n:stop": "npm run docker -- -f compose.yaml -f compose.n8n.yaml stop n8n monitor-api",
     "n8n:configure": "node scripts/n8n/configure.mjs",
     "demo:n8n": "node scripts/n8n/demo.mjs",
-    "test:n8n": "npm --prefix apps/api run build && node scripts/n8n/check.mjs"
+    "test:n8n": "npm --prefix apps/api run build && node scripts/n8n/check.mjs",
+    "alerts:up": "npm run docker -- -f compose.yaml -f compose.n8n.yaml -f compose.alerts.yaml up -d --build --wait",
+    "alerts:stop": "npm run docker -- -f compose.yaml -f compose.n8n.yaml -f compose.alerts.yaml stop alert-worker",
+    "alerts:worker": "npm --prefix apps/api run alerts:worker",
+    "test:alerts": "npm --prefix apps/api run test:alerts"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
