@@ -1,7 +1,10 @@
+import { NestFactory } from '../../apps/api/node_modules/@nestjs/core/index.js';
+import { AppModule } from '../../apps/api/dist/app.module.js';
+import { configureApp } from '../../apps/api/dist/configure-app.js';
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync, unlinkSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { createWorkflows } from '../../integrations/n8n/workflows.mjs';
 import { compose, waitReady } from './lib.mjs';
 import { PrismaPg } from '../../apps/api/node_modules/@prisma/adapter-pg/dist/index.mjs';
@@ -15,7 +18,7 @@ mkdirSync(imports,{recursive:true});mkdirSync(folder+'/data',{recursive:true});
 const override=folder+'/compose.json';
 writeFileSync(override,JSON.stringify({services:{[service]:{image:'n8nio/n8n:2.40.7',ports:['127.0.0.1:5679:5678'],environment:{N8N_DIAGNOSTICS_ENABLED:'false',N8N_PERSONALIZATION_ENABLED:'false',N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS:'true',EXECUTIONS_DATA_SAVE_ON_ERROR:'all',EXECUTIONS_DATA_SAVE_ON_SUCCESS:'all'},volumes:[folder+'/data:/home/node/.n8n',imports+':/imports:ro']}}}));
 const run=args=>compose(['-f',override,...args],{capture:true});
-const base='http://localhost:3002';let userId,workspaceId,checks=0;
+const base='http://localhost:3002';let userId,workspaceId,checks=0,rerunApp;
 async function api(path,{method='GET',cookie,body,status=200,key}={}) {
   const response=await fetch(base+path,{method,headers:{'Content-Type':'application/json',Origin:process.env.FRONTEND_URL??'http://localhost:3000','X-Requested-With':'AutomationMonitor',...(cookie?{Cookie:cookie}:{}),...(key?{Authorization:'Bearer '+key}:{})},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(20000)});
   assert.equal(response.status,status,method+' '+path);checks++;
@@ -30,7 +33,7 @@ try {
   const keyPath='/workspaces/'+workspaceId+'/workflows/'+workflow.id+'/keys';
   const key=(await api(keyPath,{method:'POST',cookie:account.cookie,status:201,body:{label:'n8n integration check'}})).data;
   const webhookKey=randomBytes(32).toString('base64url');
-  const built=createWorkflows({workflowId:workflow.id,prefix:'check'+token,webhookPath:'check-'+token});
+  const built=createWorkflows({workflowId:workflow.id,prefix:'check'+token,webhookPath:'automation-monitor/orders'});
   writeFileSync(imports+'/credentials.json',JSON.stringify([{...built.monitorCredential,type:'httpHeaderAuth',data:{name:'Authorization',value:'Bearer '+key.key}},{...built.webhookCredential,type:'httpHeaderAuth',data:{name:'X-Order-Key',value:webhookKey}}]),{mode:0o600});
   writeFileSync(imports+'/workflows.json',JSON.stringify([built.errors,built.main]));
   console.log('Importing test credentials and real n8n workflows…');
@@ -41,7 +44,7 @@ try {
   run(['run','--rm','--no-deps',service,'publish:workflow','--id='+built.main.id]);
   run(['up','-d','--no-deps',service]);
   await waitReady('http://localhost:5679/healthz');
-  const webhook='http://localhost:5679/webhook/check-'+token;
+  const webhook='http://localhost:5679/webhook/automation-monitor/orders';
   const order=async(body,authorized=true)=>fetch(webhook,{method:'POST',headers:{'Content-Type':'application/json',...(authorized?{'X-Order-Key':webhookKey}:{})},body:JSON.stringify(body),signal:AbortSignal.timeout(60000)});
   // healthz can become ready before published webhooks finish registering.
   const unauthorized=await until(()=>order({orderId:'test-order',amount:100},false),response=>response.status!==404);
@@ -62,11 +65,28 @@ try {
   await api('/workspaces/'+workspaceId+'/monitor/runs/'+failed.id,{cookie:account.cookie});
   const again=await order({orderId:'test-order',amount:100});assert.equal(again.status,200);assert.notEqual((await again.json()).executionId,receipt.executionId);checks++;
   await until(()=>api(runsPath,{cookie:account.cookie}).then(r=>r.data),rows=>rows.length===3&&rows.filter(r=>r.status==='SUCCEEDED').length===2);
+  // A separate host API reads an isolated connection file; the user's connection is untouched.
+  const connectionFile=folder+'/rerun-connection.json';
+  writeFileSync(connectionFile,JSON.stringify({workflowId:workflow.id,webhookKey,replayVersion:1}),{mode:0o600});
+  process.env.N8N_CONNECTION_FILE=connectionFile;process.env.N8N_WEBHOOK_ORIGIN='http://localhost:5679';
+  rerunApp=await NestFactory.create(AppModule,{logger:false});configureApp(rerunApp);await rerunApp.listen(0,'127.0.0.1');
+  const rerunUrl=await rerunApp.getUrl()+'/workspaces/'+workspaceId+'/runs/'+failed.id+'/rerun';
+  const requestId=randomUUID();
+  const retry=()=>fetch(rerunUrl,{method:'POST',headers:{'Content-Type':'application/json',Cookie:account.cookie,Origin:process.env.FRONTEND_URL??'http://localhost:3000','X-Requested-With':'AutomationMonitor'},body:JSON.stringify({requestId}),signal:AbortSignal.timeout(20000)});
+  const rerunResponse=await retry();assert.equal(rerunResponse.status,200);checks++;
+  const rerunData=await rerunResponse.json();assert.equal(rerunData.audit.status,'OBSERVED');assert.notEqual(rerunData.audit.result.id,failed.id);
+  const rerunRows=await until(()=>api(runsPath,{cookie:account.cookie}).then(r=>r.data),rows=>rows.length===4&&rows.filter(r=>r.status==='FAILED').length===2);
+  const replayedRun=rerunRows.find(r=>r.id===rerunData.audit.result.id);assert.ok(replayedRun);assert.deepEqual(replayedRun.events.map(e=>e.type),['STARTED','FAILED']);assert.equal(replayedRun.rerunRequestId,requestId);
+  assert.equal((await retry()).status,200);checks++;
+  assert.equal((await api(runsPath,{cookie:account.cookie})).data.length,4);
+  unlinkSync(connectionFile);
   await api(keyPath+'/'+key.id,{method:'DELETE',cookie:account.cookie,status:204});
   assert.equal((await order({orderId:'revoked-key',amount:100})).status,500);checks++;
-  assert.equal((await api(runsPath,{cookie:account.cookie})).data.length,3);
-  console.log(JSON.stringify({httpAssertions:checks,realN8nSuccess:'passed',realN8nErrorWorkflow:'passed',receiptCalculation:'passed',dashboardTotals:'passed',eventReplay:'passed',webhookAuthentication:'passed',revokedMonitorKey:'passed'}));
+  assert.equal((await api(runsPath,{cookie:account.cookie})).data.length,4);
+  console.log(JSON.stringify({httpAssertions:checks,realN8nRerun:'passed',realN8nSuccess:'passed',realN8nErrorWorkflow:'passed',receiptCalculation:'passed',dashboardTotals:'passed',eventReplay:'passed',webhookAuthentication:'passed',revokedMonitorKey:'passed'}));
 } finally {
+  if(rerunApp)await rerunApp.close();
+  if(existsSync(folder+'/rerun-connection.json'))unlinkSync(folder+'/rerun-connection.json');
   // Remove only the uniquely named test service; never stop the user's n8n service.
   try{run(['rm','--stop','--force',service]);}catch{console.error('Could not remove temporary n8n service: '+service);}
   if(existsSync(imports+'/credentials.json'))unlinkSync(imports+'/credentials.json');

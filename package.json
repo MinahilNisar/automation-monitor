@@ -37,7 +37,9 @@
     "alerts:up": "npm run docker -- -f compose.yaml -f compose.n8n.yaml -f compose.alerts.yaml up -d --build --wait",
     "alerts:stop": "npm run docker -- -f compose.yaml -f compose.n8n.yaml -f compose.alerts.yaml stop alert-worker",
     "alerts:worker": "npm --prefix apps/api run alerts:worker",
-    "test:alerts": "npm --prefix apps/api run test:alerts"
+    "test:alerts": "npm --prefix apps/api run test:alerts",
+    "test:live": "npm --prefix apps/api run test:live",
+    "n8n:upgrade": "node scripts/n8n/upgrade.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

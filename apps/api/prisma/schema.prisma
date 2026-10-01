@@ -29,6 +29,7 @@ model Workflow {
   description String?
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  rerunRequests RerunRequest[]
   alertPolicy AlertPolicy?
   alerts Alert[]
   keys        WorkflowApiKey[]
@@ -47,6 +48,8 @@ model Run {
   createdAt   DateTime  @default(now()) @db.Timestamptz(3)
   workflow    Workflow  @relation(fields: [workflowId], references: [id], onDelete: Restrict)
   events      RunEvent[]
+  replayInput Json?
+  rerunRequestId String? @db.Uuid
 
   @@unique([workflowId, externalId])
   @@index([workflowId, startedAt])
@@ -59,6 +62,8 @@ model RunEvent {
   runId       String    @db.Uuid
   externalId  String
   type        EventType
+  replayInput Json?
+  rerunRequestId String? @db.Uuid
   message     String
   occurredAt  DateTime  @db.Timestamptz(3)
   createdAt   DateTime  @default(now()) @db.Timestamptz(3)
@@ -82,6 +87,7 @@ model User {
   memberships Membership[]
   sessions Session[]
   issuedKeys WorkflowApiKey[]
+  requestedReruns RerunRequest[]
 }
 
 model Workspace {
@@ -90,6 +96,7 @@ model Workspace {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   memberships Membership[]
   workflows Workflow[]
+  revision WorkspaceRevision?
 }
 
 model Membership {
@@ -160,4 +167,30 @@ model Alert {
   workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   @@index([workflowId, createdAt, id])
   @@index([delivery, id])
+}
+
+model WorkspaceRevision {
+  workspaceId String @id @db.Uuid
+  revision BigInt @default(0)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+enum RerunStatus {
+  REQUESTED
+  OBSERVED
+  REJECTED
+  UNCERTAIN
+}
+model RerunRequest {
+  id String @id @db.Uuid
+  workflowId String @db.Uuid
+  sourceRunId String @unique @db.Uuid
+  resultRunId String? @db.Uuid
+  requestedById String? @db.Uuid
+  requestedByName String
+  status RerunStatus @default(REQUESTED)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  requestedBy User? @relation(fields: [requestedById], references: [id], onDelete: SetNull)
+  @@index([workflowId, createdAt])
 }

@@ -1,4 +1,5 @@
 'use client';
+import { useWorkspaceLive } from '@/lib/use-workspace-live';
 import Link from 'next/link';
 import { useState } from 'react';
 import { QueryClient, QueryClientProvider, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,6 +36,7 @@ function WorkspaceAlerts({ userId }: { userId: string }) {
 }
 function InboxPanel({ userId, space }: { userId: string; space: Space }) {
   const client = useQueryClient();
+  const live = useWorkspaceLive(userId, space.workspaceId);
   const [page, setPage] = useState(1);
   const [workflowId, setWorkflowId] = useState('');
   const [runId, setRunId] = useState<string | null>(null);
@@ -44,7 +46,8 @@ function InboxPanel({ userId, space }: { userId: string; space: Space }) {
   const workflows = useInfiniteQuery({ queryKey: ['alert-workflows', userId, space.workspaceId], initialPageParam: '', queryFn: ({ pageParam }) => api<Options>(path + '/monitor/workflows' + (pageParam ? '?cursor=' + pageParam : '')), getNextPageParam: last => last.nextCursor ?? undefined });
   const options = workflows.data?.pages.flatMap(p => p.items) ?? [];
   const read = useMutation({ mutationFn: (id: string) => api(path + '/alerts/' + id + '/read', 'PATCH'), onSuccess: () => client.invalidateQueries({ queryKey: key }) });
-  return <><div className="alerts-layout"><section className="monitor-panel"><div className="monitor-section-heading"><div><p className="eyebrow">NOTIFICATIONS</p><h2><Bell size={20} aria-hidden="true" /> Activity to review</h2></div><Button variant="outline" disabled={inbox.isFetching} onClick={() => void inbox.refetch()}><RefreshCw size={14} /> Refresh</Button></div>
+  if (live.revoked) return <p role="alert">Workspace access ended. Reload after signing in again.</p>;
+  return <><p role="status" className="muted">{live.status}</p><div className="alerts-layout"><section className="monitor-panel"><div className="monitor-section-heading"><div><p className="eyebrow">NOTIFICATIONS</p><h2><Bell size={20} aria-hidden="true" /> Activity to review</h2></div><Button variant="outline" disabled={inbox.isFetching} onClick={() => void inbox.refetch()}><RefreshCw size={14} /> Refresh</Button></div>
     <p className="muted">{!inbox.isError && inbox.data ? inbox.data.unread + ' unread · ' + inbox.data.total + ' total · ' : ''}Refreshes every 15 seconds</p>
     {read.isError && <p role="alert" className="help">Could not mark the alert as read. Please retry.</p>}
     {inbox.isPending ? <p role="status">Loading alerts…</p> : inbox.isError ? <p role="alert">Alerts could not be loaded. Check your session and retry.</p> : !inbox.data.items.length ? <div className="monitor-empty"><CheckCheck size={32} /><h3>No alerts on this page</h3><p>Enable a workflow rule to watch for future failures or missing runs.</p></div> : <ul className="alerts-list">{inbox.data.items.map(alert => <li key={alert.id} className={alert.readAt ? 'alert-read' : ''}><div className="monitor-section-heading"><strong>{alert.kind === 'FAILURE' ? 'Run failed' : 'Expected run missing'}</strong><span className="tag">{alert.delivery === 'PENDING' ? 'Waiting for delivery' : alert.delivery === 'FAILED' ? 'Delivery failed' : alert.readAt ? 'Read by team' : 'Unread'}</span></div><h3>{alert.workflow.name}</h3><p>{alert.message}</p><time dateTime={alert.createdAt}>{timestamp(alert.createdAt)}</time>{alert.lastError && <p className="help">{alert.lastError}</p>}<div className="alerts-actions">{alert.runId && <Button variant="outline" onClick={() => setRunId(alert.runId)}>View run</Button>}<Button variant="ghost" onClick={() => setWorkflowId(alert.workflow.id)}>View rule</Button>{alert.delivery === 'DELIVERED' && !alert.readAt && <Button disabled={read.isPending} onClick={() => read.mutate(alert.id)}>Mark as read</Button>}</div></li>)}</ul>}

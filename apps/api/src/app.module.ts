@@ -1,3 +1,4 @@
+import { LiveModule } from './live/live.module.js';
 import { AlertsModule } from './alerts/alerts.module.js';
 import { MonitorModule } from './monitor/monitor.module.js';
 import { IngestionModule } from './ingestion/ingestion.module.js';
@@ -11,7 +12,7 @@ import { WorkflowsModule } from './workflows/workflows.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 @Module({
-  imports: [AlertsModule, ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]), AuthModule, WorkspacesModule, WorkflowsModule, IngestionModule, MonitorModule],
+  imports: [LiveModule, AlertsModule, ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]), AuthModule, WorkspacesModule, WorkflowsModule, IngestionModule, MonitorModule],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: OriginGuard }, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

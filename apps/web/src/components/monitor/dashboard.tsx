@@ -1,4 +1,5 @@
 'use client';
+import { useWorkspaceLive } from '@/lib/use-workspace-live';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,6 +36,7 @@ function WorkspaceDashboard({ user }: { user: User }) {
   </>;
 }
 function WorkspaceMonitor({ userId, workspaceId }: { userId: string; workspaceId: string }) {
+  const live = useWorkspaceLive(userId, workspaceId);
   const [filters, setFilters] = useState<Filters>(defaults);
   const [draft, setDraft] = useState(filters);
   const [page, setPage] = useState(1);
@@ -50,7 +52,9 @@ function WorkspaceMonitor({ userId, workspaceId }: { userId: string; workspaceId
   const options = workflows.data?.pages.flatMap(result => result.items) ?? [];
   const data = query.isError ? undefined : query.data;
   const closeRun = () => { const previous = runId; setRunId(null); if (previous) document.getElementById('run-' + previous)?.focus(); };
+  if (live.revoked) return <p role="alert">Workspace access ended. Reload after signing in again.</p>;
   return <>
+    <p role="status" className="muted">{live.status}</p>
     <form className="monitor-filters monitor-panel" onSubmit={event => {
       event.preventDefault();
       const fields = new FormData(event.currentTarget);

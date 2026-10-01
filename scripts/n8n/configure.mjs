@@ -20,7 +20,9 @@ try {
   compose(['run','--rm','--no-deps','n8n','import:workflow','--input=/imports/workflows.json']);
   compose(['run','--rm','--no-deps','n8n','publish:workflow','--id='+built.errors.id]);
   compose(['run','--rm','--no-deps','n8n','publish:workflow','--id='+built.main.id]);
-  writeFileSync('.data/n8n-connection.json',JSON.stringify({workflowId,webhookUrl:'http://localhost:5678/webhook/automation-monitor/orders',webhookKey},null,2),{mode:0o600});
+  mkdirSync('.data/n8n-monitor',{recursive:true});
+  writeFileSync('.data/n8n-monitor/n8n-connection.json',JSON.stringify({replayVersion:1,workflowId,webhookKey}),{mode:0o600});
+  writeFileSync('.data/n8n-connection.json',JSON.stringify({replayVersion:1,workflowId,webhookUrl:'http://localhost:5678/webhook/automation-monitor/orders',webhookKey},null,2),{mode:0o600});
 } finally {
   if(existsSync(credentialFile)) unlinkSync(credentialFile);
   compose(['up','-d','--wait','n8n']);

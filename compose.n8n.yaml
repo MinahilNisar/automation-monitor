@@ -8,7 +8,11 @@ services:
       HOST: 0.0.0.0
       PORT: 3001
       FRONTEND_URL: http://localhost:3000
+      N8N_CONNECTION_FILE: /integration/n8n-connection.json
+      N8N_WEBHOOK_ORIGIN: http://n8n:5678
       DATABASE_URL: postgresql://automation_monitor:${POSTGRES_PASSWORD}@postgres:5432/automation_monitor?schema=public
+    volumes:
+      - ./.data/n8n-monitor:/integration:ro
     ports:
       - "127.0.0.1:3002:3001"
     depends_on:

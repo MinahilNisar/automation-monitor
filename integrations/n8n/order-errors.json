@@ -4,7 +4,7 @@
   "active": false,
   "nodes": [
     {
-      "id": "dd313949-259c-450f-b7fd-b78f26c322c6",
+      "id": "a57483d3-0184-4f72-b5ad-9a76a73c69d8",
       "name": "Order failed",
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
@@ -15,7 +15,7 @@
       "parameters": {}
     },
     {
-      "id": "9c7aa42b-6c91-48ea-9ab0-3da8c2319b4d",
+      "id": "eb3e13cc-580b-4c06-85da-266aa2dc89de",
       "name": "Has execution ID?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -33,7 +33,7 @@
           },
           "conditions": [
             {
-              "id": "c79698fb-114b-417f-b397-253fbfa7a376",
+              "id": "064c0281-f298-4fd9-a25f-807e5a375071",
               "leftValue": "={{ !!$json.execution?.id }}",
               "rightValue": true,
               "operator": {
@@ -49,7 +49,7 @@
       }
     },
     {
-      "id": "111cd31d-7c2e-4ae6-88c2-ac6231f00bd1",
+      "id": "240a4efb-7d4c-4f29-a54f-b5a4c328ebf4",
       "name": "Capture failure",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -64,7 +64,7 @@
       }
     },
     {
-      "id": "fbda69f3-1a4f-4493-a1e5-6e63b51d104d",
+      "id": "39be0e82-a265-44ed-8bbc-24f88e296d52",
       "name": "Report failed",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
@@ -136,5 +136,5 @@
     "saveDataSuccessExecution": "all"
   },
   "pinData": {},
-  "versionId": "9db4d838-9aaa-469e-a6a4-3818a97ddfb3"
+  "versionId": "c9d02bbe-cdc3-4ca5-adc9-7b3082ba6af1"
 }

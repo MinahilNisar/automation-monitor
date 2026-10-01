@@ -97,3 +97,7 @@ Run `npm run n8n:up` to start the local n8n editor and container API. Follow [Ph
 ## Phase 7: alerts
 
 Run `npm run alerts:up`, then open http://localhost:3000/alerts. Owners can enable failure and missing-run rules; members share the alert inbox. See the [Phase 7 learning guide](docs/PHASE-07.md) for setup, delivery guarantees, tests and manager questions. Stop the normal worker with `npm run alerts:stop` before running `npm run test:alerts`.
+
+## Phase 8: live updates and controlled reruns
+
+The dashboard and alert inbox now receive authenticated SSE refresh signals. Owners can review and rerun failed executions of the connected order-validation sample using saved input, with an audit trail and duplicate-request protection. See the [Phase 8 learning guide](docs/PHASE-08.md) for setup, limits, tests and manager questions. Existing sample connections need `npm run n8n:upgrade`; older runs without saved input remain view-only. Run `npm run test:live` and `npm run test:n8n` with the local services running.

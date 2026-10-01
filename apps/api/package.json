@@ -33,7 +33,8 @@
     "test:ingestion": "npm run build && node scripts/check-ingestion.mjs",
     "test:monitor": "npm run build && node scripts/check-monitor.mjs",
     "alerts:worker": "node dist/alerts/worker.js",
-    "test:alerts": "npm run build && node scripts/check-alerts.mjs"
+    "test:alerts": "npm run build && node scripts/check-alerts.mjs",
+    "test:live": "npm run build && node scripts/check-live.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
