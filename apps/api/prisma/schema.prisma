@@ -48,6 +48,7 @@ model Run {
   createdAt   DateTime  @default(now()) @db.Timestamptz(3)
   workflow    Workflow  @relation(fields: [workflowId], references: [id], onDelete: Restrict)
   events      RunEvent[]
+  aiReports   AiReport[]
   replayInput Json?
   rerunRequestId String? @db.Uuid
 
@@ -173,6 +174,22 @@ model WorkspaceRevision {
   workspaceId String @id @db.Uuid
   revision BigInt @default(0)
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model AiReport {
+  id String @id @default(uuid()) @db.Uuid
+  runId String @db.Uuid
+  run Run @relation(fields: [runId], references: [id], onDelete: Cascade)
+  evidenceHash String
+  status String @default("PENDING")
+  model String
+  policy String
+  requestedById String @db.Uuid
+  evidence Json
+  result Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@unique([runId, evidenceHash])
+  @@index([createdAt])
 }
 enum RerunStatus {
   REQUESTED

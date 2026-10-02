@@ -2,9 +2,9 @@ const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 export class ApiError extends Error {
   constructor(message: string, public status: number) { super(message); }
 }
-export async function api<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
+export async function api<T>(path: string, method = 'GET', body?: unknown, timeoutMs = 15000): Promise<T> {
   const response = await fetch(base + path, {
-    method, credentials: 'include', cache: 'no-store', signal: AbortSignal.timeout(15000),
+    method, credentials: 'include', cache: 'no-store', signal: AbortSignal.timeout(timeoutMs),
     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'AutomationMonitor' },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });

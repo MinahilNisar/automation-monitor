@@ -101,3 +101,7 @@ Run `npm run alerts:up`, then open http://localhost:3000/alerts. Owners can enab
 ## Phase 8: live updates and controlled reruns
 
 The dashboard and alert inbox now receive authenticated SSE refresh signals. Owners can review and rerun failed executions of the connected order-validation sample using saved input, with an audit trail and duplicate-request protection. See the [Phase 8 learning guide](docs/PHASE-08.md) for setup, limits, tests and manager questions. Existing sample connections need `npm run n8n:upgrade`; older runs without saved input remain view-only. Run `npm run test:live` and `npm run test:n8n` with the local services running.
+
+## Phase 9: AI failure review
+
+Failed-run details include a redacted evidence preview and owner-approved AI review. AI is disabled until a server API key and model are configured. See the [Phase 9 learning guide](docs/PHASE-09.md) for setup, evidence handling, limits and evaluation rubrics. `npm run test:ai` uses a local provider double. The separate `npm run eval:ai:live` command makes real requests with synthetic cases after configuration; live-model evaluation is still pending.

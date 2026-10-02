@@ -39,7 +39,9 @@
     "alerts:worker": "npm --prefix apps/api run alerts:worker",
     "test:alerts": "npm --prefix apps/api run test:alerts",
     "test:live": "npm --prefix apps/api run test:live",
-    "n8n:upgrade": "node scripts/n8n/upgrade.mjs"
+    "n8n:upgrade": "node scripts/n8n/upgrade.mjs",
+    "test:ai": "npm --prefix apps/api run test:ai",
+    "eval:ai:live": "npm --prefix apps/api run eval:ai:live"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

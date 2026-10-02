@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { RerunPanel } from './rerun-panel';
+import { AiPanel } from './ai-panel';
 import { X } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ export function RunDetail({ userId, workspaceId, runId, onClose }: { userId: str
     <div className="monitor-section-heading"><div><p className="eyebrow">EXECUTION DETAIL</p><h2 ref={heading} tabIndex={-1} id="run-detail-title">Event timeline</h2></div><Button variant="ghost" onClick={onClose} aria-label="Close run details"><X size={18} /></Button></div>
     {query.isPending ? <p role="status">Loading events…</p> : query.isError ? <div role="alert"><p>Unable to load this run. It may no longer be available to your account.</p><Button variant="outline" onClick={() => void query.refetch()}>Retry details</Button></div> : <>
       <RerunPanel userId={userId} workspaceId={workspaceId} runId={runId} />
+      <AiPanel key={runId} userId={userId} workspaceId={workspaceId} runId={runId} />
       <h3>{query.data.run.workflow.name}</h3><p className="monitor-external-id">{query.data.run.externalId}</p>
       <dl className="monitor-run-facts"><div><dt>Status</dt><dd><span className={'monitor-badge ' + query.data.run.status}>{statusLabel[query.data.run.status]}</span></dd></div><div><dt>Duration</dt><dd>{duration(query.data.run)}</dd></div><div><dt>Received</dt><dd>{timestamp(query.data.run.createdAt)}</dd></div><div><dt>Started</dt><dd>{timestamp(query.data.run.startedAt)}</dd></div><div><dt>Finished</dt><dd>{timestamp(query.data.run.finishedAt)}</dd></div></dl>
       <p className="muted">{query.data.totalEvents} events · ordered by reported time (UTC)</p>
